@@ -18,8 +18,9 @@
 CREATE TABLE IF NOT EXISTS `categorie` (
   `idcat` int NOT NULL AUTO_INCREMENT,
   `nomcat` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`idcat`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  PRIMARY KEY (`idcat`),
+  UNIQUE KEY `nomcat` (`nomcat`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Les données exportées n'étaient pas sélectionnées.
 
@@ -37,7 +38,7 @@ CREATE TABLE IF NOT EXISTS `commande` (
   PRIMARY KEY (`idCom`),
   KEY `fkcli` (`idcli`),
   CONSTRAINT `fkcli` FOREIGN KEY (`idcli`) REFERENCES `utilisateur` (`idU`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Les données exportées n'étaient pas sélectionnées.
 
@@ -53,7 +54,20 @@ CREATE TABLE IF NOT EXISTS `commande_produit` (
   KEY `fkprod` (`idprod`),
   CONSTRAINT `fkcom` FOREIGN KEY (`idcom`) REFERENCES `commande` (`idCom`),
   CONSTRAINT `fkprod` FOREIGN KEY (`idprod`) REFERENCES `produits` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Les données exportées n'étaient pas sélectionnées.
+
+-- Listage de la structure de table eshop. panier
+CREATE TABLE IF NOT EXISTS `panier` (
+  `idcli` int NOT NULL,
+  `idProduit` int NOT NULL,
+  `quantite` int NOT NULL DEFAULT '1',
+  PRIMARY KEY (`idcli`,`idProduit`),
+  KEY `idProduit` (`idProduit`),
+  CONSTRAINT `panier_ibfk_1` FOREIGN KEY (`idcli`) REFERENCES `utilisateur` (`idU`),
+  CONSTRAINT `panier_ibfk_2` FOREIGN KEY (`idProduit`) REFERENCES `produits` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Les données exportées n'étaient pas sélectionnées.
 
@@ -66,10 +80,11 @@ CREATE TABLE IF NOT EXISTS `produits` (
   `prix` decimal(10,2) NOT NULL,
   `stock` int DEFAULT NULL,
   `id_cat` int DEFAULT NULL,
+  `actif` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   KEY `fk_produit_cat` (`id_cat`),
   CONSTRAINT `fk_produit_cat` FOREIGN KEY (`id_cat`) REFERENCES `categorie` (`idcat`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Les données exportées n'étaient pas sélectionnées.
 
@@ -84,7 +99,7 @@ CREATE TABLE IF NOT EXISTS `utilisateur` (
   `date_crea` datetime NOT NULL DEFAULT (now()),
   PRIMARY KEY (`idU`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Les données exportées n'étaient pas sélectionnées.
 

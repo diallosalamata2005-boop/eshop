@@ -5,15 +5,23 @@ require_once __DIR__.'/../models/SessionManager.php';
 class ProduitController {
     public function liste(){
     SessionManager::Startsession();
-    
-    
     $succes = null;
     if (isset($_SESSION['succes'])) {
         $succes = $_SESSION['succes'];
         unset($_SESSION['succes']);
     }
-    
-    $produits = Produit::recupererTous();
+
+    $erreur = null;
+    if (isset($_SESSION['erreur'])) {
+        $erreur = $_SESSION['erreur'];
+        unset($_SESSION['erreur']);
+    }
+
+    if (isset($_GET['q']) && !empty($_GET['q'])) {
+        $produits = Produit::rechercher($_GET['q']);
+    } else {
+        $produits = Produit::recupererTous();
+    }
     require __DIR__.'/../views/produits/liste.php';
 }
 

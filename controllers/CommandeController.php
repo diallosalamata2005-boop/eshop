@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__.'/../models/SessionManager.php';
 require_once __DIR__.'/../models/Utilisateur.php';
+require_once __DIR__.'/../models/Produit.php';
 require_once __DIR__.'/../models/Commande.php';
 require_once __DIR__.'/PanierController.php';
 class CommandeController{
@@ -35,8 +36,11 @@ $sousTotal = 0;
 foreach ($lignesPanier as $ligne) {
     $sousTotal += $ligne['produit']->getPrix() * $ligne['quantite'];
 }
+   SessionManager::Startsession();
+    $utilisateur=SessionManager::getUser();
+$nbArticles = Panier::getNombreArticle($utilisateur->getIdU());
+$fraisLivraison = 1000 + ($nbArticles * 200);
 
-$fraisLivraison = 2000;
 $total = $sousTotal + $fraisLivraison;
 return [
         'lignesPanier' => $lignesPanier,
@@ -85,7 +89,7 @@ if ($idCommande !== null) {
     header("location:index.php");
     exit();
 } else {
-    $_SESSION['erreur'] = "Une erreur est survenue, veuillez réessayer.";
+    $_SESSION['erreur'] = "Une erreur lors de la commande.";
     header("location:validation-commande.php");
     exit();
 }
@@ -94,6 +98,18 @@ if ($idCommande !== null) {
 
 
 }
+public function historique(){
+    SessionManager::Startsession();
+    $idutilconnecte=SessionManager::getUser();
+    if($idutilconnecte===null){
+        header("location:connexion-utilisateur.php");
+        exit();
+    }
+    $id=$idutilconnecte->getIdU();
+    $histo_com=Commande::recupererParUtilisateur($id);
+    require_once __DIR__.'/../views/commande/voir-historique.php';
+}
+
 }
 
 

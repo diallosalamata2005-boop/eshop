@@ -1,48 +1,77 @@
 <?php
 class Panier{
-public static function initialiser(){
-    if(!isset($_SESSION['panier'])){
-        $_SESSION['panier']=[];
-    }
-
-}
-public static function ajouterPanier(int $idProduit ,int $quantite=1){
-self::initialiser();
-if(isset($_SESSION['panier'][$idProduit])){
-    $_SESSION['panier'][$idProduit]+=$quantite;
-}else{
-    $_SESSION['panier'][$idProduit]=$quantite;
-}
-
-}
-public static function getContenu():array{
-    self::initialiser();
-    return $_SESSION['panier'];
-}
-public static function retirer(int $idProduit){
-    self::initialiser();
-    unset($_SESSION['panier'][$idProduit]);
-}
-public static function getNombreArticle():int{
-self::initialiser();
-return array_sum($_SESSION['panier']);
-
-}
-public static function vider(){
-    self::initialiser();
-    $_SESSION['panier']=[];
-}
-public static function diminuer(int $idProduit){
-    self::initialiser();
-    if(isset($_SESSION['panier'][$idProduit])){
-        if($_SESSION['panier'][$idProduit]>1){
-         $_SESSION['panier'][$idProduit]-=1;
-        }else{
-        self::retirer($idProduit);
+public static function ajouterPanier(int $idcli, int $idProduit, int $qte = 1) {
+    global $connexion;
+    
+    // Étape 1 : vérifier si la ligne existe déjà
+    $sql = "SELECT * FROM panier WHERE idcli = ? AND idProduit = ?";
+    $stmt = $connexion->prepare($sql);
+    $stmt->execute([$idcli, $idProduit]);
+    $ligne = $stmt->fetch();
+    
+    if ($ligne) {
+        // Elle existe déjà : on AUGMENTE la quantité
+        $nouvelleQte = $ligne['quantite'] + $qte;
+        $sqlUpdate = "UPDATE panier SET quantite = ? WHERE idcli = ? AND idProduit = ?";
+        $stmtUpdate = $connexion->prepare($sqlUpdate);
+        $stmtUpdate->execute([$nouvelleQte, $idcli, $idProduit]);
+    } else {
+        // Elle n'existe pas : on l'INSÈRE
+        $sqlInsert = "INSERT INTO panier(idcli, idProduit, quantite) VALUES (?, ?, ?)";
+        $stmtInsert = $connexion->prepare($sqlInsert);
+        $stmtInsert->execute([$idcli, $idProduit, $qte]);
     }
 }
+public static function getContenu(int $idcli): array {
+    global $connexion;
+    
+    $sql = "SELECT * FROM panier WHERE idcli = ?";
+    $stmt = $connexion->prepare($sql);
+    $stmt->execute([$idcli]);
+    $lignes = $stmt->fetchAll();
+    
+    $contenu = [];
+    foreach ($lignes as $ligne) {
+        $contenu[$ligne['idProduit']] = $ligne['quantite'];
+    }
+    return $contenu;
 }
-
+ public static function retirer(int $idcli, int $idProduit) {
+    global $connexion;
+    
+    $sql = "DELETE FROM panier WHERE idcli = ? AND idProduit = ?";
+    $stmt = $connexion->prepare($sql);
+    $stmt->execute([$idcli, $idProduit]);
+}
+public static function getNombreArticle(int $idcli): int {
+    $contenu = self::getContenu($idcli);
+    return array_sum($contenu);
+}
+public static function vider(int $idcli) {
+    global $connexion;
+    
+    $sql = "DELETE FROM panier WHERE idcli = ?";
+    $stmt = $connexion->prepare($sql);
+    $stmt->execute([$idcli]);
+}
+public static function diminuer(int $idcli, int $idProduit) {
+    global $connexion;
+    
+    $sql = "SELECT * FROM panier WHERE idcli = ? AND idProduit = ?";
+    $stmt = $connexion->prepare($sql);
+    $stmt->execute([$idcli, $idProduit]);
+    $ligne = $stmt->fetch();
+    
+    if ($ligne) {
+        if ($ligne['quantite'] <= 1) {
+            self::retirer($idcli, $idProduit);
+        } else {
+            $sqlUpdate = "UPDATE panier SET quantite = quantite - 1 WHERE idcli = ? AND idProduit = ?";
+            $stmtUpdate = $connexion->prepare($sqlUpdate);
+            $stmtUpdate->execute([$idcli, $idProduit]);
+        }
+    }
+}
 
 
 

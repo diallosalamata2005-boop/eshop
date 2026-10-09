@@ -6,7 +6,13 @@ require_once __DIR__.'/../models/Utilisateur.php';
 class PanierController{
     public static function getLignesPanier():array {
         SessionManager::Startsession();
-    $contenuPanier=Panier::getContenu();// ne contient que la clé=>id et la valeur=>qte
+         $utilisateur=SessionManager::getUser();
+    if($utilisateur===null){
+        header("location:connexion-utilisateur.php");
+        exit();
+    }
+    $id=$utilisateur->getIdU();
+    $contenuPanier=Panier::getContenu($id);// ne contient que la clé=>id et la valeur=>qte
     $lignesPanier=[];// permet de stocker les information enrichie supp (le nom , prix,etc...)
     foreach ($contenuPanier as $idProduit => $quantite) {
         $produit=Produit::recupererParId($idProduit);
@@ -25,8 +31,12 @@ class PanierController{
 
     }
 public function afficher(){
-    $lignesPanier=self::getLignesPanier();
-    
+    $lignesPanier = self::getLignesPanier();
+
+    $succes = $_SESSION['succes'] ?? null;
+    $erreur = $_SESSION['erreur'] ?? null;
+    unset($_SESSION['succes'], $_SESSION['erreur']);
+
     require_once __DIR__.'/../views/paniers/afficher.php';
 }
 }

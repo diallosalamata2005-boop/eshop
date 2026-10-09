@@ -101,7 +101,42 @@ return null;
  
 
 }
+public static function recupererParId(int $id):?Utilisateur{
+global $connexion;
+$sql="SELECT * FROM utilisateur u  WHERE u.idU=?";
+$stmt=$connexion->prepare($sql);
+$stmt->execute([$id]);
+$ligne=$stmt->fetch();
+if($ligne){
+    return new Utilisateur($ligne['idU'],$ligne['prenom'],$ligne['nom'],$ligne['email'],$ligne['mdp'],$ligne['role']);
 
+}
+return null;
+}
+
+public static function recupererTous(): array {
+    global $connexion;
+    $utilisateurs = [];
+
+    $stmt = $connexion->prepare("SELECT * FROM utilisateur ORDER BY idU");
+    $stmt->execute();
+    $lignes = $stmt->fetchAll();
+
+    foreach ($lignes as $ligne) {
+         $utilisateur= new Utilisateur($ligne['idU'],$ligne['prenom'],$ligne['nom'],$ligne['email'],$ligne['mdp'],$ligne['role']);
+
+        $utilisateurs[] = $utilisateur;
+    }
+
+    return $utilisateurs;
+}
+
+public static function changerRole(int $idU, string $role): bool {
+    global $connexion;
+
+    $stmt = $connexion->prepare("UPDATE utilisateur SET role = ? WHERE idU = ?");
+    return $stmt->execute([$role, $idU]);
+}
 
 }
 ?>

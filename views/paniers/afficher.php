@@ -57,7 +57,7 @@ $totalPanier=0;
      <?php if(!empty($lignesPanier)){?>
     <div class="bg-gray-50 p-6 rounded-lg shadow-md">
       <h3 class="text-lg font-bold mb-4">Résumé de commande</h3>
-      <p>Total articles : <?= Panier::getNombreArticle() ?></p>
+      <p>Total articles : <?= Panier::getNombreArticle(SessionManager::getUser()->getIdU()) ?></p>
       <p>Total panier : 
         <span class="text-[#9C2007] font-bold">
           <?= $totalPanier ?> FCFA

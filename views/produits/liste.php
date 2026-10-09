@@ -7,6 +7,11 @@ require __DIR__.'/../../header.php';
     <?= htmlspecialchars($succes) ?>
   </div>
 <?php endif; ?>
+ <?php if ($erreur !== null): ?>
+  <div class="bg-red-100 text-red-800 p-4 rounded-md mb-4 text-center">
+    <?= htmlspecialchars($erreur) ?>
+  </div>
+<?php endif; ?>
 <div class="grid grid-cols-3 gap-4">
 <?php foreach ($produits as $key => $prod) { ?>
 <div class="bg-white rounded-lg shadow-md p-4 flex flex-col gap-2 items-center text-center">
